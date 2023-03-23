@@ -18,10 +18,11 @@ import androidx.compose.ui.unit.sp
 import id.ac.unpas.pertemuan6.model.JokiGenshin
 import id.ac.unpas.pertemuan6.ui.theme.Purple700
 import id.ac.unpas.pertemuan6.ui.theme.Teal200
+import com.benasher44.uuid.uuid4
 
 
 @Composable
-fun FormPencatatanJoki(onSimpan: (JokiGenshin) -> Unit) {
+fun FormPencatatanJoki(jokiGenshinDao: JokiGenshinDao)  {
     val tanggal = remember { mutableStateOf(TextFieldValue("")) }
     val uid = remember { mutableStateOf(TextFieldValue("")) }
     val nickname = remember { mutableStateOf(TextFieldValue("")) }
@@ -92,9 +93,14 @@ fun FormPencatatanJoki(onSimpan: (JokiGenshin) -> Unit) {
             contentColor = Purple700
         )
         Row (modifier = Modifier.padding(4.dp).fillMaxWidth()) {
-            Button(modifier = Modifier.weight(5f), onClick = {val item = JokiGenshin(tanggal.value.text, uid.value.text,
+            Button(modifier = Modifier.weight(5f), onClick =
+            {
+                val id = uuid4().toString()
+                val item = JokiGenshin(tanggal.value.text, uid.value.text,
                 nickname.value.text, objektif.value.text, status.value.text)
-                onSimpan(item)
+                scope.launch(
+                    jokiGenshinDao.insertAll(item)
+                )
                 tanggal.value = TextFieldValue("")
                 uid.value = TextFieldValue("")
                 nickname.value = TextFieldValue("")

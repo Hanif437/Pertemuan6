@@ -9,29 +9,30 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.ac.unpas.pertemuan6.model.JokiGenshin
-import kotlinx.coroutines.flow.MutableStateFlow
+import id.ac.unpas.pertemuan6.persistences.JokiGenshinDao
 
 
 @Composable
-fun PengelolaanJokiScreen() {
-    val _list = remember { MutableStateFlow(listOf<JokiGenshin>()) }
-    val list by remember { _list }.collectAsState()
+fun FormPencatatanJoki(jokiGenshinDao){
+    val context = LocalContext.current
+    val db = Room.databaseBuilder(
+        context,
+        AppDatabase::class.java, "pengelolaan-joki"
+    ).build()
+    val jokiGenshinDao = db.jokiGenshinDao()
+
+    val list : LiveData<List<JokiGenshin>> = jokiGenshinDao.loadAll()
+    val items: List<JokiGenshin> by list.observeAsState(initial = listOf())
     Column(modifier = Modifier.fillMaxWidth()) {
-        FormPencatatanJoki { item ->
-            val newList = ArrayList(list)
-            newList.add(item)
-            _list.value = newList
-        }
+        FormPencatatanJoki()
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(items = list, itemContent = { item ->
+            items(items = items, itemContent = { item ->
                 Row(modifier = Modifier
                     .padding(15.dp)
                     .fillMaxWidth()) {
